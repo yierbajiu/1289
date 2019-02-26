@@ -1,1 +1,281 @@
-<!DOCTYPE html><html><head><title>cesh</title></head><body></body></html>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <title>cesh</title>
+  <style>
+      #article{
+          white-space: pre-wrap
+      }
+  </style>
+  </head>
+  <body>
+      <div id="article">
+  linux文件类型：
+      1.普通 - ascii binary data
+      2.目录 d 
+      3.链接 l 
+      4.管道 p FIFO模式先，解决多个程序对同一个文件的写入造成的混乱
+      5.套接字 s 用于通信临时数据   在var/run/ 下最多
+      6.设备字符 c 串行端口的设备，键盘，鼠标
+      7.设备块 b 就是硬盘   第一块硬盘是：dev/hda1
+    查看：ll ls  file stat
+    文件属性：类型+权限  作者 群组 体积大小  最近修改时间 名字 硬链接数量 inode节点编号
+    磁盘格式化：两类文件：inode  block inode就是ll显示的内容 即存放了属性和block集合的指针   block存放具体的二进制内容  
+
+ rpm -qa ||  dpkg -l || yum list installed
+ 
+ :/home/b910fd79e/perl5/bin
+ :/home/b910fd79e/.local/bin
+ :/home/b910fd79e/bin
+
+ :/usr/lib64/qt-3.3/bin
+
+ :/usr/local/bin
+ :/usr/local/sbin
+ :/usr/bin
+ :/usr/sbin
+ :/bin  重定向至/usr/
+ :/sbin  重定向至/usr/
+
+
+ # uname -a               # 查看内核/操作系统/CPU信息
+ # head -n 1 /etc/issue   # 查看操作系统版本
+ # cat /proc/cpuinfo      # 查看CPU信息
+ # hostname               # 查看计算机名
+ # lspci -tv              # 列出所有PCI设备
+ # lsusb -tv              # 列出所有USB设备
+ # lsmod                  # 列出加载的内核模块
+ # env                    # 查看环境变量
+资源
+ # free -m                # 查看内存使用量和交换区使用量
+ # df -h                  # 查看各分区使用情况
+ # du -sh &lt;目录名&gt;        # 查看指定目录的大小
+ # grep MemTotal /proc/meminfo   # 查看内存总量
+ # grep MemFree /proc/meminfo    # 查看空闲内存量
+ # uptime                 # 查看系统运行时间、用户数、负载
+ # cat /proc/loadavg      # 查看系统负载
+磁盘和分区
+ # mount | column -t      # 查看挂接的分区状态
+ # fdisk -l               # 查看所有分区
+ # swapon -s              # 查看所有交换分区
+ # hdparm -i /dev/hda     # 查看磁盘参数(仅适用于IDE设备)
+ # dmesg | grep IDE       # 查看启动时IDE设备检测状况
+网络
+ # ifconfig               # 查看所有网络接口的属性
+ # iptables -L            # 查看防火墙设置
+ # route -n               # 查看路由表
+ # netstat -lntp          # 查看所有监听端口
+ # netstat -antp          # 查看所有已经建立的连接
+ # netstat -s             # 查看网络统计信息
+进程
+ # ps -ef                 # 查看所有进程
+ # top                    # 实时显示进程状态
+用户
+ # w                      # 查看活动用户
+ # id &lt;用户名&gt;            # 查看指定用户信息
+ # last                   # 查看用户登录日志
+ # cut -d: -f1 /etc/passwd   # 查看系统所有用户
+ # cut -d: -f1 /etc/group    # 查看系统所有组
+ # crontab -l             # 查看当前用户的计划任务
+服务
+ # chkconfig --list       # 列出所有系统服务
+ # chkconfig --list | grep on    # 列出所有启动的系统服务
+程序
+ # rpm -qa                # 查看所有安装的软件包
+
+其他
+ history  
+ 
+【acm】Time   =&gt; access:body.read,如cat more ,但不含ll和stat 因为其读的是inode ，
+             modify：修改了body(ll显示的结果也是mtime)  
+             change：修改了inode，如chmod chown 写这个文件的inode时候就会修改ctime
+             vim往一个文件写入文本，三个值都会同时修改，既读了body，又写了body及inode(可能是修改了size或mtime这个属性)
+
+
+五个查找命令：find,locate,whereis,which,type 
+
+1. find
+     find是最常见和最强大的查找命令，你可以用它找到任何你想找的文件。
+     find的使用格式如下： find 路径：默认为当前目录及其子目录， 匹配表达：遍历的时候过滤逐一比较，动作：结果的处理，默认=print
+     路径：不支持用冒号隔开的多个路径 只能单个普通路径，
+
+     过滤器：(N === +N 或 -N 或 N):         
+     -name 匹配模式    -iname 匹配模式     -ilname 匹配模式         -wholename PATTERN     -lname 匹配模式
+     -amin N  -atime N  -anewer FILE   -cmin N   -ctime N   -cnewer 文件    -mmin N   -mtime N   -newer 文件
+     -uid N  -gid N       -group 名称    -user NAME     -nouser    -nogroup 
+     -type [bcdpflsD]      -xtype [bcdpfls]      -fstype 类型
+     -size N[bcwkMG]      -empty         -used N
+     -context 文本   -iregex 匹配模式      -regex PATTERN
+     -perm [-/]MODE
+     -ipath 匹配模式    -path PATTERN    -true      -false        -inum N 
+     -links N      -readable       -writable       -executable
+         文件名个：可用：*={0,n},？={1} ,[abc]=任选一， -name 区分大小写的字符串，  -iname：同name但是不区分大小写，
+         属性_类型：-type：类型，普通类型=f  ，其余同ll显示值，b c d l p s 
+ 
+         -atime +-number 表示xx天之前之后存取过的  ，-amin +-minus 表示xx分钟之前之后存取过，  
+         -m【time，min】+-number ，xx时间之间之后内容修改过的， 
+         -c【time,min】+- number 表示xx时间之前之后修改过属性：如owner，group， 
+         -newer 文件名甲  表示比甲的修改时间还早的所有文件 
+ 
+         -user xx用户   -group： 用户群组名     以及-no【user，group】 表示创建者的账户已经被注销，文件没有创建者属性
+         -gid  -uid  
+ 
+         属性_权限：-perm 777
+         -【max,min】depth number  表示最大小的遍历深度，即大于小于判断，返回true则抛弃结果
+         -size  +-前缀表示大于小于，不加前缀表示等于  b：512字节块（默认）    c：字节  w：双字节字  k：Kilobytes  M：兆字节  G：千兆字节
+         -empty 只限空的文件或文件夹，空文件：content.length===0 ，空文件夹?? 查文件夹的结构
+         -link number 判断硬链接的数量，不同前缀有不同意义， +-或没有前缀
+         -a  === &&  如-size +10 -a -size -100 查找大小为10-100的文件
+         -o  === || 
+         -not === ！求反 如-not -size 0 表示内容大小不能等于0
+         find /usr/ ( -path /usr/dir1 -o -path /usr/file1 ) -prune -o -print  各种解析都有，一说：-path() ？ -prune ：-print  ,一说 括号内不会被shell解析，而是作为字符传入find函数内，有find解析，胡说八道
+
+     结果处理函数：
+     -【ok,exec】[print,ls -l,] {} ;   =&gt;ok会有一个确认的过程， {}表示查找结果 ，;用于结尾标记  
+     -delete     -print0     -printf 格式     -fprintf 文件 格式     -print      -fprint0 文件     -fprint 文件     -ls     -fls 文件     -prune     -quit      -exec 命令 ;     -exec 命令 {} +     -ok 命令 ;      -execdir 命令 ;     -execdir 命令 {} +     -okdir 命令 ;
+
+  
+
+     
+2. locate
+     locate命令其实是“find -name”的另一种写法，但是要比后者快得多，原因在于它不搜索具体目录，而是搜索一个数据库（/var/lib/locatedb），这个数据库中含有本地所有文件信息。Linux系统自动创建这个数据库，并且每天自动更新一次，所以使用locate命令查不到最新变动过的文件。为了避免这种情况，可以在使用locate之前，先使用updatedb命令，手动更新数据库。
+     locate命令的使用实例：
+     　　$ locate /etc/sh        搜索etc目录下所有以sh开头的文件。
+     　　$ locate ~/m            搜索用户主目录下，所有以m开头的文件。
+     　　$ locate -i ~/m        搜索用户主目录下，所有以m开头的文件，并且忽略大小写。
+     
+3. whereis
+     whereis命令只能用于程序名的搜索，而且只搜索二进制文件（参数-b）、man说明文件（参数-m）和源代码文件（参数-s）。如果省略参数，则返回所有信息。
+     whereis命令的使用实例：        　　$ whereis grep
+     
+4. which
+     which命令的作用是，在PATH变量指定的路径中，搜索某个系统命令的位置，并且返回第一个搜索结果。也就是说，使用which命令，就可以看到某个系统命令是否存在，以及执行的到底是哪一个位置的命令。
+     which命令的使用实例：        　　$ which grep
+     
+5. type
+     type命令其实不能算查找命令，它是用来区分某个命令到底是由shell自带的，还是由shell外部的独立二进制文件提供的。如果一个命令是外部命令，那么使用-p参数，会显示该命令的路径，相当于which命令。
+     type命令的使用实例：
+     　　$ type cd     系统会提示，cd是shell的自带命令（build-in）。
+     　　$ type grep   系统会提示，grep是一个外部命令，并显示该命令的路径。
+     　　$ type -p grep   加上-p参数后，就相当于which命令。
+     
+
+
+ which      查看可执行文件的位置   可以找到可执行文件和别名(alias)
+ whereis    查看文件的位置   可以找到可执行命令和man page 
+ locate     配合数据库查看文件位置    是在数据库里查找，数据库大至每天更新一次。 
+ find       实际搜寻硬盘查询文件名称   就是根据条件查找文件。
+
+ 当我们用whereis和locate无法查找到我们需要的文件时，可以使用find，但是find是在硬盘上遍历查 找，因此非常消耗硬盘的资源，而且效率也非常低，因此建议大家优先使用whereis和locate。 
+
+
+     
+1、which 语法： [root@redhat ~]# which 可执行文件名称     which命令的作用是，在PATH变量指定的路径中，搜索某个系统命令的位置，并且返回第一个搜索结果。也就是说，使用which命令，就可以看到某个系统命令是否存在，以及执行的到底是哪一个位置的命令。
+     2．命令功能：which指令会在PATH变量指定的路径中，搜索某个系统命令的位置，并且返回第一个搜索结果。
+     3．命令参数：
+     -n 　指定文件名长度，指定的长度必须大于或等于所有文件中最长的文件名。
+     -p 　与-n参数相同，但此处的包括了文件的路径。
+     -w 　指定输出时栏位的宽度。
+     -a   返回全部位置，而非仅仅是第一个。
+     -V 　显示版本信息
+     例如： [root@redhat ~]# which passwd 
+     /usr/bin/passwd 
+     which是通过 PATH环境变量到该路径内查找可执行文件，所以基本的功能是寻找可执行文件 
+     cd 这个常用的命令竟然找不到啊！为什么呢？这是因为 cd 是bash 内建的命令！ 但是 which 默认是找 PATH 内所规范的目录，所以当然一定找不到的！
+     有时候会返回多行，其中一个是 alias 这就是所谓的『命令别名』，意思是输入 which 会等於后面接的那串命令！
+     如： alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'  
+     
+2、whereis 语法： [root@redhat ~]# whereis [-bmsu] 文件或者目录名称 
+     参数说明： 
+     -b ： 只找二进制文件 
+     -m： 只找在说明文件manual路径下的文件 
+     -s ： 只找source源文件 
+     -u ： 没有说明文档的文件 
+     例如： [root@redhat ~]# whereis passwd    将和passwd文件相关的文件都查找出来 
+     passwd: /usr/bin/passwd /etc/passwd /usr/share/man/man1/passwd.1.gz /usr/share/man/man5/passwd.5.gz 
+     
+     [root@redhat ~]# whereis -b passwd    只将二进制文件 查找出来 
+     passwd: /usr/bin/passwd /etc/passwd  
+     和find相比，whereis查找的速度非常快，这是因为linux系统会将 系统内的所有文件都记录在一个数据库文件中，当使用whereis和下面即将介绍的locate时，会从数据库中查找数据，而不是像find命令那样，通 过遍历硬盘来查找，效率自然会很高。 
+     但是该数据库文件并不是实时更新，默认情况下时一星期更新一次，因此，我们在用whereis和locate 查找文件时，有时会找到已经被删除的数据，或者刚刚建立文件，却无法查找到，原因就是因为数据库文件没有被更新。 
+     
+3、 locate 语法： [root@redhat ~]# locate 文件或者目录名称 
+     例 如： [root@redhat ~]# locate passwd 
+     
+4、 find 语法： [root@redhat ~]# find 路径 参数 
+ 参数说明： 
+   时间查找参数： 
+     -atime n     : 将n*24小时内存取过的的文件列出来 
+     -ctime n     : 将n*24小时内改变、新增的文件或者目录列出来 
+     -mtime n     : 将n*24小时内修改过的文件或者目录列出来 
+     -newer file  ：把比file还要新的文件列出来 
+   名称查找参数： 
+     -gid n       ：寻找群组ID为n的文件 
+     -group n     ：寻找群组名称为n的文件 
+     -uid n       ：寻找拥有者ID为n的文件 
+     -user n      ：寻找用户者名称为n的文件 
+     -name n      ：寻找文件名为n的文件（可以使用通配符） 
+     例 如： [root@redhat ~]# find / -name zgz 
+     
+    
+
+
+
+
+
+ 
+
+RPM： Red Hat Package Manager，功能类似于Windows里面的“添加/删除程序”
+  1.查看这个软件包里有什么内容，：rpm -qpi   Linux-1.4-6.i368.rpm      系统将会列出这个软件包的详细资料，包括含有多少个文件、各文件名称、文件大小、创建时间、编译日期等信息。
+
+  2.如同Windows下程序的安装方式分为典型、完全、自定义一样，Linux也会让你选择安装方式，上面列出的所有文件在安装时不一定全部安装，此时我们可以用下面这条命令查看软件包将会在系统里安装哪些部分，以方便我们的选择：     rpm -qpl Linux-1.4-6.i368.rpm
+
+  3. 选择安装方式后，开始安装。rpm-ivh Linux-1.4-6.i368.rpm 在安装过程中，若系统提示此软件已安装过或因其他原因无法继续安装，但若我们确实想执行安装命 令，可以在 -ivh后加一参数“-replacepkgs”：rpm -ivh -replacepkgs Linux-1.4-6.i368.rpm
+
+  4.卸载，某个安装过的软件，只需执行rpm-e &lt;文件名&gt;
+
+  5.升级，这样可以省去我们卸载后再安装新软件的麻烦，要升级某个软件，只须执行如下命令：rpm -uvh &lt;文件名&gt;;，注意：此时的文件名必须是要升级软件的升级补丁
+
+  6.远程安装，通过FTP站点直接在线安装软件。当找到含有你所需软件的站点并 与此网站连接后，执行下面的命令即可实现在线安装，可谓是Linux的独到之处，同时也是RMP强大功能的一个表现 比如： rpm -i ftp://ftp.pht.com/pub/linux/redhat/...-1.4-6.i368.rpm
+
+  7. 损坏查询，若我们误删了几个文件而影响了系统的性能时，查找损坏文件命令：rpm -Va即可，Linux将为你列出所有损坏的文件。你可以通过Linux的安装光盘进行修复。
+
+  8.文件归属软件查询，Linux系统中文件繁多，在使用过程中，难免会碰到我们不认识的文件，在Windows下我们可以用“开始/查找”菜单快速判断某个文件属于哪个文件夹，在Linux中，下面这条命令行可以帮助我们快速判定某个文件属于哪个软件包：  rpm -qf &lt;文件名&gt;;
+
+  9.当每个软件包安装在Linux系统后，安装文件都会到RPM数据库中“报到”，所以，我们要查询某个已安装软件的属性时，只需到此数据库中查找即可。注意：此时的查询命令不同于1和8介绍的查询，这种方法只适用于已安装过的软件包！命令格式：     rpm -参数　&lt;文件名&gt;;
+
+ 
+
+APT-GET:
+  apt-get update——在修改/etc/apt/sources.list或者/etc/apt/preferences之后运行该命令。此外您需要定期运行这一命令以确保您的软件包列表是最新的。 
+  apt-get install packagename——安装一个新软件包（参见下文的aptitude） 
+  apt-get remove packagename——卸载一个已安装的软件包（保留配置文件） 
+  apt-get --purge remove packagename——卸载一个已安装的软件包（删除配置文件） 
+  dpkg --force-all --purge packagename 有些软件很难卸载，而且还阻止了别的软件的应用，就可以用这个，不过有点冒险。 
+  apt-get autoclean apt会把已装或已卸的软件都备份在硬盘上，所以如果需要空间的话，可以让这个命令来删除你已经删掉的软件 
+  apt-get clean 这个命令会把安装的软件的备份也删除，不过这样不会影响软件的使用的。 
+  apt-get upgrade——更新所有已安装的软件包 
+  apt-get dist-upgrade——将系统升级到新版本 
+  apt-cache search string——在软件包列表中搜索字符串 
+  dpkg -l package-name-pattern——列出所有与模式相匹配的软件包。如果您不知道软件包的全名，使用“*package-name-pattern*”。 
+  aptitude——详细查看已安装或可用的软件包。与apt-get类似，aptitude可以通过命令行方式调用，但仅限于某些命令——最常见的有安装和卸载命令。由于aptitude比apt-get了解更多信息，可以说它更适合用来进行安装和卸载。 
+  apt-cache showpkg pkgs——显示软件包信息。 
+  apt-cache dumpavail——打印可用软件包列表。 
+  apt-cache show pkgs——显示软件包记录，类似于dpkg –print-avail。 
+  apt-cache pkgnames——打印软件包列表中所有软件包的名称。 
+  dpkg -S file——这个文件属于哪个已安装软件包。 
+  dpkg -L package——列出软件包中的所有文件。 
+  apt-file search filename——查找包含特定文件的软件包（不一定是已安装的），这些文件的文件名中含有指定的字符串。apt-file是一个独立的软件包。您必须 先使用apt-get install来安装它，然后运行apt-file update。如果apt-file search filename输出的内容太多，您可以尝试使用apt-file search filename | grep -w filename（只显示指定字符串作为完整的单词出现在其中的那些文件名）或者类似方法，例如：apt-file search filename | grep /bin/（只显示位于诸如/bin或/usr/bin这些文件夹中的文件，如果您要查找的是某个特定的执行文件的话，这样做是有帮助的）。
+
+  shell.app 内部子程序调用或指定模式  前加横杠？System V风格 ：BSD风格   横杠数量：1，后续只能是一个字符，多个子程序或模式可以叠加 如 tar -zxvf    横杠数量：2 后跟字符必须大于1 ，传入的参数可以用空格作边界，也可以用=号作边界  如 --color=red   --color red 
+   多个app 可以用 && || 连起来，效果同js同名内置函数，
+   管道 | 将前一个app的输出 作为参数传入到后一个app中（如何指定参数位置? 只能是最后一个吗）
+
+      </div>
+  </body>
+  </html>
